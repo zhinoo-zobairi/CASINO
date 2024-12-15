@@ -36,9 +36,27 @@ public class Casino {
         frame.add(rightMenu, BorderLayout.EAST);
 
 
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        JLabel slotMachineLabel = new JLabel("Slot Machine Area");
-        centerPanel.add(slotMachineLabel);
+        JPanel centerPanel = new JPanel(); 
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+
+        JPanel reelsPanel = new JPanel(new GridLayout(1, 3));
+        JLabel reel1 = new JLabel("🍒", JLabel.CENTER);
+        JLabel reel2 = new JLabel("🍋", JLabel.CENTER);
+        JLabel reel3 = new JLabel("🍉", JLabel.CENTER);
+        reel1.setFont(new Font("Arial", Font.BOLD, 40));
+        reel2.setFont(new Font("Arial", Font.BOLD, 40));
+        reel3.setFont(new Font("Arial", Font.BOLD, 40));
+        reelsPanel.add(reel1);
+        reelsPanel.add(reel2);
+        reelsPanel.add(reel3);
+
+        JButton spinButton = new JButton("Spin");
+        spinButton.setFont(new Font("Arial", Font.BOLD, 20));
+
+        centerPanel.add(reelsPanel);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 20)));
+        centerPanel.add(spinButton);
+
         frame.add(centerPanel, BorderLayout.CENTER);
 
 
