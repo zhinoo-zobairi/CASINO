@@ -25,10 +25,8 @@ public class Casino {
     private static JPanel createCardPanel(JFrame frame) {
         JPanel cardPanel = new JPanel(new CardLayout());
 
-        SlotMachinePanel slotMachinePage = new SlotMachinePanel(cardPanel);
         ProfilePanel profilePage = new ProfilePanel(cardPanel);
 
-        cardPanel.add(slotMachinePage, "SlotMachine");
         cardPanel.add(profilePage, "Profile");
 
         frame.add(cardPanel, BorderLayout.CENTER);
