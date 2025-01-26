@@ -1,0 +1,7 @@
+*.class
+
+src/casino_users.db
+
+src/*.jar
+
+.vscode/
