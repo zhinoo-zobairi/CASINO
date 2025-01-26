@@ -10,15 +10,19 @@ public class CasinoLogic {
         return amountMoney;
     }
 
-    public String[] generateReels() {
+    public String[] generateReels(int amountReels) {
         Random random = new Random();
-        int randomNum1 = random.nextInt(3);
-        int randomNum2 = random.nextInt(3); 
-        int randomNum3 = random.nextInt(3);  
+        int[] randomNumbers = new int[amountReels];
+        for (int i = 0; i < amountReels; i++) {
+            randomNumbers[i] = random.nextInt(2);
+        }
 
-        String[] options = {"🍉","🍋","🍒"};
+        String[] options = {"🍒", "🍋", "🍉", "🍊", "🍇", "🍓", "🥝", "🍍", "🍌", "🍏"};
 
-        String [] givenReels = {options[randomNum1],options[randomNum2],options[randomNum3]};
+        String [] givenReels = new String[amountReels];
+        for (int i = 0; i < amountReels; i++) {
+            givenReels[i] = options[randomNumbers[i]];
+        }
         return givenReels;
     }
 
@@ -26,7 +30,8 @@ public class CasinoLogic {
         if (betAmount <= 0 || betAmount > amountMoney) {
             return "Invalid bet!";
         }
-        if (generatedReels[0].equals(generatedReels[1]) && generatedReels[1].equals(generatedReels[2])) {
+        if (generatedReels[0].equals(generatedReels[1]) && generatedReels[1].equals(generatedReels[2]) && generatedReels[2].equals(generatedReels[3]) 
+        && generatedReels[3].equals(generatedReels[4])) {
             amountMoney += 5*betAmount;
             return "Your current wealth:\n" + amountMoney;
         } else {
