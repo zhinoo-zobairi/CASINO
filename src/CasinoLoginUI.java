@@ -1,26 +1,25 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.*;
-import java.util.Base64;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.sql.*;
+import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.swing.*;
 
-public class CasinoLoginUI {
+public class CasinoLoginUI extends JFrame{
     private static final String DB_URL = "jdbc:sqlite:casino_users.db";
 
+    {
+
+    }
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(CasinoLoginUI::showLoginFrame);
     }
 
-    private static void showLoginFrame() {
-        JFrame frame = new JFrame("Jasino Login");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 300);
-        frame.setLayout(new GridBagLayout());
+    public CasinoLoginUI () {
+        this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        this.setSize(400, 300);
+        this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         
@@ -30,24 +29,24 @@ public class CasinoLoginUI {
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        frame.add(titleLabel, gbc);
+        this.add(titleLabel, gbc);
 
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
-        frame.add(new JLabel("Username:"), gbc);
+        this.add(new JLabel("Username:"), gbc);
 
         JTextField usernameField = new JTextField(15);
         gbc.gridx = 1;
-        frame.add(usernameField, gbc);
+        this.add(usernameField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        frame.add(new JLabel("Password:"), gbc);
+        this.add(new JLabel("Password:"), gbc);
 
         JPasswordField passwordField = new JPasswordField(15);
         gbc.gridx = 1;
-        frame.add(passwordField, gbc);
+        this.add(passwordField, gbc);
 
         JButton registerButton = new JButton("Register");
         JButton loginButton = new JButton("Login");
@@ -55,43 +54,43 @@ public class CasinoLoginUI {
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        frame.add(registerButton, gbc);
+        this.add(registerButton, gbc);
 
         gbc.gridx = 1;
-        frame.add(loginButton, gbc);
+        this.add(loginButton, gbc);
 
         JLabel statusLabel = new JLabel("");
         gbc.gridx = 0;
         gbc.gridy = 4;
         gbc.gridwidth = 2;
-        frame.add(statusLabel, gbc);
+        this.add(statusLabel, gbc);
 
-        frame.getContentPane().setBackground(new Color(240, 240, 240));
+        this.getContentPane().setBackground(new Color(240, 240, 240));
 
         loginButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
             if (loginUser(username, password)) {
-                JOptionPane.showMessageDialog(frame, "Login successful! Welcome, " + username);
+                JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + username);
             } else {
                 statusLabel.setText("Invalid login. Try again.");
                 statusLabel.setForeground(Color.RED);
             }
-        });
-
+        }); 
         registerButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+            CasinoMain.showSecondFrame();
             if (registerUser(username, password)) {
-                JOptionPane.showMessageDialog(frame, "Registration successful! Please log in.");
+                JOptionPane.showMessageDialog(this, "Registration successful! Please log in.");
             } else {
                 statusLabel.setText("Registration failed.");
                 statusLabel.setForeground(Color.RED);
             }
         });
 
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        this.setLocationRelativeTo(null);
+        this.setVisible(true);
     }
 
     private static boolean loginUser(String username, String password) {
@@ -153,6 +152,7 @@ public class CasinoLoginUI {
         random.nextBytes(salt);
         return salt;
     }
+
 
     private static String hashPassword(String password, byte[] salt) throws Exception {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);

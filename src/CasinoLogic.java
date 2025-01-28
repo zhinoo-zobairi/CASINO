@@ -2,6 +2,7 @@ import java.util.Random;
 
 public class CasinoLogic {
     private int amountMoney;
+    private int onARoll = 1;
     public CasinoLogic(int initialAmount) {
         this.amountMoney = initialAmount;
     }
@@ -9,12 +10,15 @@ public class CasinoLogic {
     public int getAmountMoney() {
         return amountMoney;
     }
+    public int getOnARoll (){
+        return onARoll; //On a roll multiplayer doesnt give any advantage if 0, but when 2 lines then it increases the next winning by 10
+    }
 
     public String[] generateReels(int amountReels) {
         Random random = new Random();
         int[] randomNumbers = new int[amountReels];
         for (int i = 0; i < amountReels; i++) {
-            randomNumbers[i] = random.nextInt(2);
+            randomNumbers[i] = random.nextInt(3);
         }
 
         String[] options = {"🍒", "🍋", "🍉", "🍊", "🍇", "🍓", "🥝", "🍍", "🍌", "🍏"};
@@ -26,21 +30,29 @@ public class CasinoLogic {
         return givenReels;
     }
 
-    public String spin(int betAmount, String[] generatedReels) {
-        if (betAmount <= 0 || betAmount > amountMoney) {
-            return "Invalid bet!";
-        }
-        if (generatedReels[0].equals(generatedReels[1]) && generatedReels[1].equals(generatedReels[2]) && generatedReels[2].equals(generatedReels[3]) 
-        && generatedReels[3].equals(generatedReels[4])) {
-            amountMoney += 5*betAmount;
-            return "Your current wealth:\n" + amountMoney;
-        } else {
-            amountMoney -= betAmount;
-            if (amountMoney <= 0) {
-                amountMoney = 0;
-                return "You lost! Current wealth: 0. You are out of money!";
+    public void spin(int betSize, boolean [] winningRows,boolean [] winningColumns) {
+        int moneyWinMultiplier = 0;
+        int countinedRoll = 0;
+        for (int i = 0; i < 5; i++) {
+            int encounteredLineInRow = 0;
+            int encounteredLineInColumn = 0;
+            if (winningRows[i] == true){
+                moneyWinMultiplier = moneyWinMultiplier + 5;
+                encounteredLineInRow++;
             }
-            return "Your current wealth:\n" + amountMoney;
+            if (winningColumns[i] == true){
+                moneyWinMultiplier = moneyWinMultiplier + 5;
+                encounteredLineInColumn++;
+            }
+            if (encounteredLineInColumn != 0 && encounteredLineInRow != 0){
+                moneyWinMultiplier =+ 11 * onARoll;
+                onARoll =+ 10;
+                countinedRoll = 1;
+            }
         }
+        if (countinedRoll == 0){
+            onARoll = 1;
+        }
+        this.amountMoney = this.amountMoney - betSize + betSize *moneyWinMultiplier;
     }
 }
