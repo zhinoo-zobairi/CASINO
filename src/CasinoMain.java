@@ -11,6 +11,10 @@ public class CasinoMain {
         switchFrame(new Casino());
     }
 
+    public static void showProfil(){
+        switchFrame(new Profile());
+    }
+
     private static void switchFrame(JFrame newFrame) {
         if (currentFrame != null) {
             currentFrame.dispose(); // Close the previous frame

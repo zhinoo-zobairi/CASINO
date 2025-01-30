@@ -273,44 +273,45 @@ public class Casino extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    String[] generatedReels = casinoLogic.generateReels(25);
-                    boolean[] winningRows = new boolean[5];
-                    boolean[] winningColumns = new boolean[5];
-                    for (int row = 0; row < 5; row++) {
-                        boolean match = true;
-                        String first = generatedReels[row * 5];
-                        for (int col = 1; col < 5; col++) {
-                            if (!generatedReels[row * 5 + col].equals(first)) {
-                                match = false;
-                                break;
+                    if(betSize <= casinoLogic.getAmountMoney()){
+                        String[] generatedReels = casinoLogic.generateReels(25);
+                        boolean[] winningRows = new boolean[5];
+                        boolean[] winningColumns = new boolean[5];
+                        for (int row = 0; row < 5; row++) {
+                            boolean match = true;
+                            String first = generatedReels[row * 5];
+                            for (int col = 1; col < 5; col++) {
+                                if (!generatedReels[row * 5 + col].equals(first)) {
+                                    match = false;
+                                    break;
+                                }
                             }
+                            winningRows[row] = match;
                         }
-                        winningRows[row] = match;
-                    }
-                    for (int column = 0; column < 5; column++) {
-                        boolean match = true;
-                        String first = generatedReels[column];
-                        for (int row = 1; row < 5; row++) {
-                            if (!generatedReels[row * 5 + column].equals(first)) {
-                                match = false;
-                                break;
+                        for (int column = 0; column < 5; column++) {
+                            boolean match = true;
+                            String first = generatedReels[column];
+                            for (int row = 1; row < 5; row++) {
+                                if (!generatedReels[row * 5 + column].equals(first)) {
+                                    match = false;
+                                    break;
+                                }
                             }
+                            winningColumns[column] = match;
                         }
-                        winningColumns[column] = match;
+                        reelsPanel.setWinningRows(winningRows,winningColumns);
+                        
+                        for (int i = 0; i < reels.length; i++) {
+                            reels[i].setText(generatedReels[i]);
+                            reels[i].setFont(new Font("Arial", Font.BOLD, 50));
+                            reels[i].setOpaque(false);
+                        }
+                        if (casinoLogic.getAmountMoney() <= 0) {
+                            spinButton.setEnabled(false);
+                        }
+                        casinoLogic.spin(betSize, winningRows,winningColumns);
+                        moneyCount.setText("Money: " + casinoLogic.getAmountMoney());
                     }
-                    reelsPanel.setWinningRows(winningRows,winningColumns);
-                    
-                    for (int i = 0; i < reels.length; i++) {
-                        reels[i].setText(generatedReels[i]);
-                        reels[i].setFont(new Font("Arial", Font.BOLD, 50));
-                        reels[i].setOpaque(false);
-                    }
-                    if (casinoLogic.getAmountMoney() <= 0) {
-                        spinButton.setEnabled(false);
-                    }
-                    casinoLogic.spin(betSize, winningRows,winningColumns);
-                    moneyCount.setText("Money: " + casinoLogic.getAmountMoney());
-                    
                 } catch (NumberFormatException ex) {
                 }
             }

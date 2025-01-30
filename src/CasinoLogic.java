@@ -54,5 +54,8 @@ public class CasinoLogic {
             onARoll = 1;
         }
         this.amountMoney = this.amountMoney - betSize + betSize *moneyWinMultiplier;
+        if (this.amountMoney < 0){
+            this.amountMoney = 1;
+        }
     }
 }
