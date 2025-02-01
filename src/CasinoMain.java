@@ -7,8 +7,8 @@ public class CasinoMain {
         switchFrame(new CasinoLoginUI());
     }
 
-    public static void showSecondFrame() {
-        switchFrame(new Casino());
+    public static void showSecondFrame(String username) {
+        switchFrame(new Casino(username));
     }
 
     public static void showProfil(){

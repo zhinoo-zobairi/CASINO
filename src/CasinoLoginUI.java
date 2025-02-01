@@ -1,7 +1,11 @@
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -72,7 +76,8 @@ public class CasinoLoginUI extends JFrame{
             String password = new String(passwordField.getPassword());
             if (loginUser(username, password)) {
                 JOptionPane.showMessageDialog(this, "Login successful! Welcome, " + username);
-            } else {
+                CasinoMain.showSecondFrame(username);
+            } else if (loginUser(username, password)== false){
                 statusLabel.setText("Invalid login. Try again.");
                 statusLabel.setForeground(Color.RED);
             }
@@ -80,7 +85,6 @@ public class CasinoLoginUI extends JFrame{
         registerButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            CasinoMain.showSecondFrame();
             if (registerUser(username, password)) {
                 JOptionPane.showMessageDialog(this, "Registration successful! Please log in.");
             } else {
@@ -94,20 +98,15 @@ public class CasinoLoginUI extends JFrame{
     }
 
     private static boolean loginUser(String username, String password) {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            String query = "SELECT * FROM users WHERE username=?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, username);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String storedHash = rs.getString("password");
-                byte[] storedSalt = Base64.getDecoder().decode(rs.getString("salt"));
-                String hashedInput = hashPassword(password, storedSalt);
-                return hashedInput.equals(storedHash);
+        String[] usernames = getAllUsernames();
+        String[] passwords = getAllPasswords();
+        for (int i = 0; i < usernames.length; i++) {
+            if (username.equals(usernames[i]) && password.equals(passwords[i])) {
+                return true;
+            } else if (username.equals(usernames[i]) && !password.equals(passwords[i])) {
+                return true;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            
         }
         return false;
     }
@@ -144,6 +143,41 @@ public class CasinoLoginUI extends JFrame{
             e.printStackTrace();
         }
         return false;
+    }
+
+    private static String[] getAllUsernames (){
+        ArrayList<String> usernames = new ArrayList<>();
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";"); 
+                usernames.add(values[0]);
+            }
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
+        return usernames.stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
+    }
+
+    private static String[] getAllPasswords (){
+        ArrayList<String> passwords = new ArrayList<>();
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";"); 
+                passwords.add(values[1]);
+            }
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
+        System.out.println("");
+        return passwords.stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
     }
 
     private static byte[] generateSalt() {

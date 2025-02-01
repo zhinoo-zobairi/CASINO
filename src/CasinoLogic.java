@@ -1,10 +1,33 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Random;
 
 public class CasinoLogic {
-    private int amountMoney;
     private int onARoll = 1;
-    public CasinoLogic(int initialAmount) {
-        this.amountMoney = initialAmount;
+    private String username;
+    private int amountMoney;
+    private int gamesPlayed;
+    private int gamesWon;
+    private int gamesLost;
+    public CasinoLogic(String givenUsername) {
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";"); 
+                if (givenUsername.equals(values[0])){
+                    this.username = givenUsername;
+                    this.amountMoney = Integer.parseInt(values[2]);
+                    this.gamesPlayed = Integer.parseInt(values[3]);
+                    this.gamesWon = Integer.parseInt(values[4]);
+                    this.gamesLost = Integer.parseInt(values[5]);
+                    System.out.println(amountMoney);
+                }
+            }
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
     }
 
     public int getAmountMoney() {

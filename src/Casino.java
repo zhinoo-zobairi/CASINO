@@ -14,7 +14,7 @@ class ReelPanel extends JPanel {
         setLayout(new GridLayout(5, 5, 10, 10)); // Ensuring consistent spacing
     }
     public static void main(String[] args) {
-        Casino casino = new Casino();
+        Casino casino = new Casino("bartlew");
     }
     public void setWinningRows(boolean[] winningRows,boolean[] winningColumns) {
         this.winningRows = winningRows;
@@ -82,8 +82,8 @@ protected void paintComponent(Graphics g) {
 public class Casino extends JFrame {
     private int betSize;
    
-    public Casino () {
-        final CasinoLogic casinoLogic = new CasinoLogic(10000);
+    public Casino (String username) {
+        final CasinoLogic casinoLogic = new CasinoLogic(username);
         betSize = 100;
         this.setSize(1200, 800);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -105,7 +105,8 @@ public class Casino extends JFrame {
         menuPanel.setOpaque(false);
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
         menuPanel.add(logoutButton);
-        menuPanel.add(new JButton("Profile"));
+        JButton profilButton = new JButton("Profile");
+        menuPanel.add(profilButton);
         menuPanel.setVisible(false); 
         leftPanel.add(menuPanel, BorderLayout.CENTER);
 
@@ -119,6 +120,13 @@ public class Casino extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 CasinoMain.showMainFrame();
+            }
+        });
+
+        profilButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CasinoMain.showProfil();
             }
         });
 
