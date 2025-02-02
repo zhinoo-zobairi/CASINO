@@ -1,9 +1,16 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class CasinoLogic {
+    private int rowInCsv;
     private int onARoll = 1;
     private String username;
     private int amountMoney;
@@ -13,17 +20,18 @@ public class CasinoLogic {
     public CasinoLogic(String givenUsername) {
         String csvFile = "./data.csv";  // Path to your CSV file
         String line;
+        int rowCount = 0;
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";"); 
                 if (givenUsername.equals(values[0])){
+                    rowInCsv = rowCount;
                     this.username = givenUsername;
                     this.amountMoney = Integer.parseInt(values[2]);
                     this.gamesPlayed = Integer.parseInt(values[3]);
                     this.gamesWon = Integer.parseInt(values[4]);
-                    this.gamesLost = Integer.parseInt(values[5]);
-                    System.out.println(amountMoney);
                 }
+                rowCount++;
             }
         } catch (IOException e) {
             new Exception("Error: Data hasnt loaded properly!");
@@ -36,6 +44,89 @@ public class CasinoLogic {
     public int getOnARoll (){
         return onARoll; //On a roll multiplayer doesnt give any advantage if 0, but when 2 lines then it increases the next winning by 10
     }
+
+
+    // CasinoLogic kann als einzige Klasse die csv-datei beeinflussen. Die Anderungen konnen nur von
+    // Casino-frame gemacht werden (ausgeschlossen ist die resetPlayerMoney() function, die fur Profil-frame bestimmt ist)
+    public void updateData(int rowIndex, String[] financialData) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get("./data.csv"));
+        ArrayList<String> data = new ArrayList<>();
+        if (rowIndex >= 0 && rowIndex < lines.size()) {
+            String[] columns = lines.get(rowIndex).split(";");
+            data.add(columns[0]);
+            data.add(columns[1]);
+            data.addAll(Arrays.asList(financialData));
+            lines.set(rowIndex, String.join(";", data.toArray(new String[0])));
+        } else {
+            System.out.println("Row index out of bounds.");
+            return;
+        }
+
+        try (FileWriter writer = new FileWriter("./data.csv")) { 
+            for (String line : lines) {
+                writer.write(line + "\n");
+            }
+        }
+    }
+
+    public static void appendData(String[] data) throws IOException{
+        try (FileWriter writer = new FileWriter("./data.csv", true)) { 
+            writer.write(String.join(";", data));
+            writer.write("\n");
+            }
+    }
+
+    
+    public static void resetPlayerMoney(String username) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get("./data.csv"));
+        try (FileWriter writer = new FileWriter("./data.csv")) {
+            for (String line : lines) {
+                String[] parts = line.split(";"); 
+                if (parts[0].equals(username)) {
+                    writer.write(username + ";" + parts[1] + ";" + 10000 + ";" + 0 + ";" + 0 + ";"+ "\n");
+                } else {
+                    writer.write(line + "\n"); 
+                }
+            }
+        }
+    }
+    public static String[] getAllUsernames (){
+        ArrayList<String> usernames = new ArrayList<>();
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";"); 
+                usernames.add(values[0]);
+            }
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
+        return usernames.stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
+    }
+
+    public static String[] getAllPasswords (){
+        ArrayList<String> passwords = new ArrayList<>();
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";"); 
+                passwords.add(values[1]);
+            }
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
+        System.out.println("");
+        return passwords.stream()
+        .map(String::valueOf)
+        .toArray(String[]::new);
+    }
+
+
+
 
     public String[] generateReels(int amountReels) {
         Random random = new Random();
@@ -53,9 +144,10 @@ public class CasinoLogic {
         return givenReels;
     }
 
-    public void spin(int betSize, boolean [] winningRows,boolean [] winningColumns) {
+    public void spin(int betSize, boolean [] winningRows,boolean [] winningColumns) throws IOException {
         int moneyWinMultiplier = 0;
         int countinedRoll = 0;
+        gamesPlayed++;
         for (int i = 0; i < 5; i++) {
             int encounteredLineInRow = 0;
             int encounteredLineInColumn = 0;
@@ -72,6 +164,9 @@ public class CasinoLogic {
                 onARoll =+ 10;
                 countinedRoll = 1;
             }
+            if (winningRows[i] == true || winningColumns[i] == true){
+                gamesWon++;
+            }
         }
         if (countinedRoll == 0){
             onARoll = 1;
@@ -80,5 +175,7 @@ public class CasinoLogic {
         if (this.amountMoney < 0){
             this.amountMoney = 1;
         }
+        String[] data = {String.valueOf(getAmountMoney()), String.valueOf(gamesPlayed), String.valueOf(gamesWon)};
+        updateData(rowInCsv, data);
     }
 }

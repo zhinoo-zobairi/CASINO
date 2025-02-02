@@ -1,14 +1,5 @@
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Base64;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.swing.*;
 
 public class CasinoLoginUI extends JFrame{
@@ -85,8 +76,14 @@ public class CasinoLoginUI extends JFrame{
         registerButton.addActionListener(e -> {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
-            if (registerUser(username, password)) {
+            if (!checkPlayerExists(username, password)) {
                 JOptionPane.showMessageDialog(this, "Registration successful! Please log in.");
+                String[] data = {username,password,"10000","0","0"};
+                try {
+                    CasinoLogic.appendData(data);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             } else {
                 statusLabel.setText("Registration failed.");
                 statusLabel.setForeground(Color.RED);
@@ -98,8 +95,8 @@ public class CasinoLoginUI extends JFrame{
     }
 
     private static boolean loginUser(String username, String password) {
-        String[] usernames = getAllUsernames();
-        String[] passwords = getAllPasswords();
+        String[] usernames = CasinoLogic.getAllUsernames();
+        String[] passwords = CasinoLogic.getAllPasswords();
         for (int i = 0; i < usernames.length; i++) {
             if (username.equals(usernames[i]) && password.equals(passwords[i])) {
                 return true;
@@ -111,87 +108,16 @@ public class CasinoLoginUI extends JFrame{
         return false;
     }
 
-    private static boolean registerUser(String username, String password) {
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Username and password cannot be empty.");
-            return false;
-        }
-
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            String checkUserSQL = "SELECT COUNT(*) FROM users WHERE username=?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkUserSQL);
-            checkStmt.setString(1, username);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (rs.getInt(1) > 0) {
-                JOptionPane.showMessageDialog(null, "Username already exists!");
-                return false;
+    private static boolean checkPlayerExists (String givenUsername, String givenPassword){
+        String[] usernames = CasinoLogic.getAllUsernames();
+        String[] passwords = CasinoLogic.getAllPasswords();
+        for (String usr: usernames){
+            if(usr.equals(givenUsername)){
+                return true;
             }
-
-            byte[] salt = generateSalt();
-            String hashedPassword = hashPassword(password, salt);
-            String encodedSalt = Base64.getEncoder().encodeToString(salt);
-
-            String insertSQL = "INSERT INTO users (username, password, salt) VALUES (?, ?, ?)";
-            PreparedStatement insertStmt = conn.prepareStatement(insertSQL);
-            insertStmt.setString(1, username);
-            insertStmt.setString(2, hashedPassword);
-            insertStmt.setString(3, encodedSalt);
-            insertStmt.executeUpdate();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return false;
     }
 
-    private static String[] getAllUsernames (){
-        ArrayList<String> usernames = new ArrayList<>();
-        String csvFile = "./data.csv";  // Path to your CSV file
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(";"); 
-                usernames.add(values[0]);
-            }
-        } catch (IOException e) {
-            new Exception("Error: Data hasnt loaded properly!");
-        }
-        return usernames.stream()
-        .map(String::valueOf)
-        .toArray(String[]::new);
-    }
-
-    private static String[] getAllPasswords (){
-        ArrayList<String> passwords = new ArrayList<>();
-        String csvFile = "./data.csv";  // Path to your CSV file
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(";"); 
-                passwords.add(values[1]);
-            }
-        } catch (IOException e) {
-            new Exception("Error: Data hasnt loaded properly!");
-        }
-        System.out.println("");
-        return passwords.stream()
-        .map(String::valueOf)
-        .toArray(String[]::new);
-    }
-
-    private static byte[] generateSalt() {
-        SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[16];
-        random.nextBytes(salt);
-        return salt;
-    }
-
-
-    private static String hashPassword(String password, byte[] salt) throws Exception {
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
-        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        byte[] hash = factory.generateSecret(spec).getEncoded();
-        return Base64.getEncoder().encodeToString(hash);
-    }
+   
 }

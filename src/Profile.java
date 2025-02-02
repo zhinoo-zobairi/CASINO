@@ -4,7 +4,6 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
 import javax.swing.*;
 
 public class Profile extends JFrame {
@@ -14,7 +13,7 @@ public class Profile extends JFrame {
     private JScrollPane compareScrollPane;
     private boolean isCompareVisible = false;
 
-    public Profile() {
+    public Profile(String username) {
         // Frame settings
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setSize(600, 400);
@@ -39,6 +38,47 @@ public class Profile extends JFrame {
         textArea.setEditable(false);
         scrollPane = new JScrollPane(textArea);
 
+        String csvFile = "./data.csv";  // Path to your CSV file
+        String line;
+        StringBuilder sb1 = new StringBuilder();
+        StringBuilder sb2 = new StringBuilder();
+        
+        int playerCount = 0;
+        float usersGames = 0;
+        float usersGamesWon = 0;
+        int sumOfPlayersMoney = 0;
+        float winrate;
+        float averageWealth;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+                playerCount++;
+                usersGames += Float.parseFloat(values[3]);
+                sumOfPlayersMoney += Integer.parseInt(values[2]);
+                usersGamesWon += Float.parseFloat(values[4]);
+                if (username.equals(values[0])){
+                    sb1.append("username: "+values[0]).append("\n");
+                    sb1.append("current wealth: " + Float.parseFloat(values[2])).append("\n");
+                    sb1.append("games played: " + Float.parseFloat(values[3])).append("\n");
+                    sb1.append("winrate: " + String.valueOf(
+                        Float.parseFloat(values[4]) / Float.parseFloat(values[3])*100)).append("% \n");
+                }
+            }
+            winrate = (usersGamesWon / usersGames * 100);
+            averageWealth = sumOfPlayersMoney / playerCount;
+            sb2.append("player count: " + playerCount).append("\n");
+            sb2.append("average wealth: " + averageWealth).append("\n");
+            sb2.append("player games: " + usersGames).append("\n");
+            sb2.append("winrate: " + winrate).append("% \n");
+        } catch (IOException e) {
+            new Exception("Error: Data hasnt loaded properly!");
+        }
+
+
+        textArea.setText(sb1.toString());
+        textArea.setFont(new Font("Arial", Font.BOLD, 15));
+
         gbc.gridy = 1;
         gbc.gridx = 1; // Center the text area
         gbc.gridwidth = 1;
@@ -50,17 +90,23 @@ public class Profile extends JFrame {
         compareTextArea.setEditable(false);
         compareScrollPane = new JScrollPane(compareTextArea);
 
+        compareTextArea.setText(sb2.toString());
+        compareTextArea.setFont(new Font("Arial", Font.BOLD, 15));
+
         // Panel for buttons to keep their size constant
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         JButton backButton = new JButton("Back");
+        JButton resetButton = new JButton("Reset");
         JButton compareButton = new JButton("Compare");
 
         // Set preferred size for buttons to make them bigger
         Dimension buttonSize = new Dimension(150, 40);
         backButton.setPreferredSize(buttonSize);
+        resetButton.setPreferredSize(buttonSize);
         compareButton.setPreferredSize(buttonSize);
 
         buttonPanel.add(backButton);
+        buttonPanel.add(resetButton);
         buttonPanel.add(compareButton);
 
         gbc.gridy = 2;
@@ -102,12 +148,40 @@ public class Profile extends JFrame {
             }
         });
 
-        // Make the window visible
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CasinoMain.showSecondFrame(username);
+            }
+        });
+
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    CasinoLogic.resetPlayerMoney(username);
+                    String[] lines = sb1.toString().split("\n");
+                    lines[1] = "current wealth: 10000.0";
+                    sb1.setLength(0); // Clear existing content
+                    for (int i = 0; i < lines.length; i++) {
+                        sb1.append(lines[i]);
+                        if (i < lines.length - 1) {
+                            sb1.append("\n"); // Add newline except after the last line
+                        }
+                    }
+                    textArea.setText(sb1.toString());
+                    revalidate();
+                    repaint();
+                } catch (IOException e1) {
+                }
+            }
+        });
+
         this.setVisible(true);
     }
 
     public static void main(String[] args) {
         
-        new Profile();
+        new Profile("bartlew");
     }
 }

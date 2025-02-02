@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.text.*;
@@ -126,7 +127,7 @@ public class Casino extends JFrame {
         profilButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                CasinoMain.showProfil();
+                CasinoMain.showProfil(username);
             }
         });
 
@@ -317,7 +318,11 @@ public class Casino extends JFrame {
                         if (casinoLogic.getAmountMoney() <= 0) {
                             spinButton.setEnabled(false);
                         }
-                        casinoLogic.spin(betSize, winningRows,winningColumns);
+                        try {
+                            casinoLogic.spin(betSize, winningRows,winningColumns);
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                         moneyCount.setText("Money: " + casinoLogic.getAmountMoney());
                     }
                 } catch (NumberFormatException ex) {

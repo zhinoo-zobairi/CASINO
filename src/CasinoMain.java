@@ -11,8 +11,8 @@ public class CasinoMain {
         switchFrame(new Casino(username));
     }
 
-    public static void showProfil(){
-        switchFrame(new Profile());
+    public static void showProfil(String username){
+        switchFrame(new Profile(username));
     }
 
     private static void switchFrame(JFrame newFrame) {
