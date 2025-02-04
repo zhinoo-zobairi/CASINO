@@ -15,6 +15,10 @@ public class CasinoMain {
         switchFrame(new Profile(username));
     }
 
+    public static void showInstructions(String username){
+        switchFrame(new Instructions(username));
+    }
+
     private static void switchFrame(JFrame newFrame) {
         if (currentFrame != null) {
             currentFrame.dispose(); // Close the previous frame
@@ -24,6 +28,6 @@ public class CasinoMain {
     }
 
     public static void main(String[] args) {
-        showMainFrame(); // Start the application with MainFrame
+        showMainFrame(); 
     }
 }

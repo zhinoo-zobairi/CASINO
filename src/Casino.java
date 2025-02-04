@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.text.*;
@@ -84,7 +86,7 @@ public class Casino extends JFrame {
     private int betSize;
    
     public Casino (String username) {
-        final CasinoLogic casinoLogic = new CasinoLogic(username);
+        final CasinoLogic casinoLogic = new CasinoLogic(username,1);
         betSize = 100;
         this.setSize(1200, 800);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -102,12 +104,18 @@ public class Casino extends JFrame {
         background.add(leftPanel, BorderLayout.WEST);
 
         JPanel menuPanel = new JPanel();
+        JButton modeButton = new JButton("Mode");
         JButton logoutButton = new JButton("Logout");
+        JButton instructionsButton = new JButton("Instructions");
+        JButton creditsButton = new JButton("Credits");
         menuPanel.setOpaque(false);
         menuPanel.setLayout(new BoxLayout(menuPanel, BoxLayout.Y_AXIS));
-        menuPanel.add(logoutButton);
         JButton profilButton = new JButton("Profile");
+        menuPanel.add(modeButton);
         menuPanel.add(profilButton);
+        menuPanel.add(instructionsButton);
+        menuPanel.add(creditsButton);
+        menuPanel.add(logoutButton);
         menuPanel.setVisible(false); 
         leftPanel.add(menuPanel, BorderLayout.CENTER);
 
@@ -124,10 +132,44 @@ public class Casino extends JFrame {
             }
         });
 
+        instructionsButton.addActionListener(e -> {
+            CasinoMain.showInstructions(username);
+        });
+
+        creditsButton.addActionListener(e -> {
+            try {
+                // Specify the website URL
+                URI uri = new URI("https://github.com/zhinoo-zobairi/CASINO/tree/dev_bart");
+        
+                // Check if the Desktop API is supported on the current platform
+                if (Desktop.isDesktopSupported()) {
+                    Desktop desktop = Desktop.getDesktop();
+        
+                    // Check if the BROWSE action is supported
+                    if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                        desktop.browse(uri); // Open the website in the default browser
+                    } else {
+                        System.out.println("BROWSE action not supported.");
+                    }
+                } else {
+                    System.out.println("Desktop API is not supported on this platform.");
+                }
+            } catch (IOException | URISyntaxException ex) {  // Renamed 'e' to 'ex' to avoid shadowing
+                ex.printStackTrace();
+            }
+        });
+
         profilButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 CasinoMain.showProfil(username);
+            }
+        });
+
+        modeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                casinoLogic.changeMode();
             }
         });
 
@@ -238,6 +280,7 @@ public class Casino extends JFrame {
         JButton setZero = new JButton("Set 0");
         JButton substractBetHundred = new JButton("-100");
         JButton substractBetTausend = new JButton("-1000");
+
 
         // Set fixed button size
         Dimension buttonSize = new Dimension(150, 50);

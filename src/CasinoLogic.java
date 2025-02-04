@@ -17,10 +17,12 @@ public class CasinoLogic {
     private int gamesPlayed;
     private int gamesWon;
     private int gamesLost;
-    public CasinoLogic(String givenUsername) {
+    private int currentMode;
+    public CasinoLogic(String givenUsername, int mode) {
         String csvFile = "./data.csv";  // Path to your CSV file
         String line;
         int rowCount = 0;
+        currentMode = mode;
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";"); 
@@ -58,7 +60,6 @@ public class CasinoLogic {
             data.addAll(Arrays.asList(financialData));
             lines.set(rowIndex, String.join(";", data.toArray(new String[0])));
         } else {
-            System.out.println("Row index out of bounds.");
             return;
         }
 
@@ -125,7 +126,14 @@ public class CasinoLogic {
         .toArray(String[]::new);
     }
 
-
+    public void changeMode (){
+        if (currentMode == 1){
+            currentMode = 2;
+        }
+        else{
+            currentMode = 1;
+        }
+    }
 
 
     public String[] generateReels(int amountReels) {
@@ -134,8 +142,14 @@ public class CasinoLogic {
         for (int i = 0; i < amountReels; i++) {
             randomNumbers[i] = random.nextInt(3);
         }
-
         String[] options = {"🍒", "🍋", "🍉", "🍊", "🍇", "🍓", "🥝", "🍍", "🍌", "🍏"};
+        if (currentMode == 1) {
+            options = new String[]{"🍒", "🍋", "🍉", "🍊", "🍇", "🍓", "🥝", "🍍", "🍌", "🍏"};
+        }
+        else if (currentMode == 2){
+            options = new String[]{ "💖", "💙", "💚", "💛", "🧡", "🖤", "🤍", "🤎", "💜", "💝"};
+        }
+        
 
         String [] givenReels = new String[amountReels];
         for (int i = 0; i < amountReels; i++) {
