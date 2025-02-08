@@ -13,18 +13,21 @@ public class Profile extends JFrame {
     private JScrollPane compareScrollPane;
     private boolean isCompareVisible = false;
 
+    /**
+     * Konstruktor: Zeigt das Profil eines bestimmten Benutzers (Statistiken, Vergleich usw.).
+     * @param username Der Benutzername, dessen Profil angezeigt wird.
+     */
     public Profile(String username) {
-        // Frame settings
+
         this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         this.setSize(600, 400);
         this.setLayout(new GridBagLayout());
 
-        // Layout constraints
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.BOTH;
 
-        // Label at the top center
+
         JLabel titleLabel = new JLabel("Game Statistics", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 30));
         gbc.gridx = 0;
@@ -33,12 +36,12 @@ public class Profile extends JFrame {
         gbc.weighty = 0.1;
         this.add(titleLabel, gbc);
 
-        // Uneditable text area with multiple rows
+
         textArea = new JTextArea(10, 20);
         textArea.setEditable(false);
         scrollPane = new JScrollPane(textArea);
 
-        String csvFile = "./data.csv";  // Path to your CSV file
+        String csvFile = "./data.csv";  
         String line;
         StringBuilder sb1 = new StringBuilder();
         StringBuilder sb2 = new StringBuilder();
@@ -50,6 +53,7 @@ public class Profile extends JFrame {
         float winrate;
         float averageWealth;
 
+        // Liest Daten aus data.csv und füllt die StringBuilder mit Profil- und Vergleichsdaten
         try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";");
@@ -75,17 +79,16 @@ public class Profile extends JFrame {
             new Exception("Error: Data hasnt loaded properly!");
         }
 
-
         textArea.setText(sb1.toString());
         textArea.setFont(new Font("Arial", Font.BOLD, 15));
 
         gbc.gridy = 1;
-        gbc.gridx = 1; // Center the text area
+        gbc.gridx = 1; 
         gbc.gridwidth = 1;
         gbc.weighty = 0.8;
         this.add(scrollPane, gbc);
 
-        // Compare text area (initially hidden)
+        // Zweites Textfeld für Vergleichsdaten (zunächst unsichtbar)
         compareTextArea = new JTextArea(10, 20);
         compareTextArea.setEditable(false);
         compareScrollPane = new JScrollPane(compareTextArea);
@@ -93,13 +96,13 @@ public class Profile extends JFrame {
         compareTextArea.setText(sb2.toString());
         compareTextArea.setFont(new Font("Arial", Font.BOLD, 15));
 
-        // Panel for buttons to keep their size constant
+        // Panel für Buttons
         JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         JButton backButton = new JButton("Back");
         JButton resetButton = new JButton("Reset");
         JButton compareButton = new JButton("Compare");
 
-        // Set preferred size for buttons to make them bigger
+        // Festgelegte Button-Größen
         Dimension buttonSize = new Dimension(150, 40);
         backButton.setPreferredSize(buttonSize);
         resetButton.setPreferredSize(buttonSize);
@@ -117,7 +120,10 @@ public class Profile extends JFrame {
         gbc.anchor = GridBagConstraints.CENTER;
         this.add(buttonPanel, gbc);
 
-        // Action listener for Compare button
+        /**
+         * ActionListener für den Compare-Button:
+         * Zeigt/Hidet die zweite TextArea mit Vergleichsdaten.
+         */
         compareButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -142,12 +148,14 @@ public class Profile extends JFrame {
                 }
                 isCompareVisible = !isCompareVisible;
 
-                // Revalidate and repaint to update the layout
                 revalidate();
                 repaint();
             }
         });
 
+        /**
+         * ActionListener für den Back-Button: Kehrt zum Spielbildschirm zurück.
+         */
         backButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -155,6 +163,10 @@ public class Profile extends JFrame {
             }
         });
 
+        /**
+         * ActionListener für den Reset-Button:
+         * Setzt das Geld des Spielers in der CSV-Datei auf 10000 und aktualisiert das Textfeld.
+         */
         resetButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -162,11 +174,11 @@ public class Profile extends JFrame {
                     CasinoLogic.resetPlayerMoney(username);
                     String[] lines = sb1.toString().split("\n");
                     lines[1] = "current wealth: 10000.0";
-                    sb1.setLength(0); // Clear existing content
+                    sb1.setLength(0);
                     for (int i = 0; i < lines.length; i++) {
                         sb1.append(lines[i]);
                         if (i < lines.length - 1) {
-                            sb1.append("\n"); // Add newline except after the last line
+                            sb1.append("\n");
                         }
                     }
                     textArea.setText(sb1.toString());
@@ -180,8 +192,8 @@ public class Profile extends JFrame {
         this.setVisible(true);
     }
 
+ 
     public static void main(String[] args) {
-        
         new Profile("bartlew");
     }
 }
