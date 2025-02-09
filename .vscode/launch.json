@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CasinoLoginUI",
+            "request": "launch",
+            "mainClass": "CasinoLoginUI",
+            "projectName": "CASINO_7fd998c2"
+        },
+        {
+            "type": "java",
             "name": "Current File",
             "request": "launch",
             "mainClass": "${file}"

@@ -218,7 +218,7 @@ public class Casino extends JFrame {
         creditsButton.addActionListener(e -> {
             try {
                 // Öffnet die angegebene URL im Browser.
-                URI uri = new URI("https://github.com/zhinoo-zobairi/CASINO/tree/dev_bart");
+                URI uri = new URI("https://github.com/zhinoo-zobairi/CASINO/tree/main");
         
                 if (Desktop.isDesktopSupported()) {
                     Desktop desktop = Desktop.getDesktop();
